@@ -197,15 +197,37 @@ def calculate_confidence_intervals(data, window_size=182):
     return data
 
 def calculate_ratio_confidence_intervals(data, window_size=182):
-    data = data.copy()
     for ratio in ['PER', 'PBR']:
-        data[f'{ratio}_regression'] = data[ratio].rolling(window=window_size).mean()
-        data[f'{ratio}_std'] = data[ratio].rolling(window=window_size).std()
+        data[f'{ratio}_slope'] = np.nan
+        data[f'{ratio}_intercept'] = np.nan
+        data[f'{ratio}_regression'] = np.nan
+        data[f'{ratio}_difference'] = np.nan
         
-        # Calculate confidence intervals
-        for x in [0.975, 0.875, 0.125, 0.025]:
-            data[f'{ratio}_CI_{x}'] = data[f'{ratio}_regression'] + norm.ppf(x) * data[f'{ratio}_std']
-    
+        for i in range(len(data)):
+            if i < window_size - 1:
+                y = data[ratio][:i + 1]
+                x = np.arange(len(y)) + 1
+            else:
+                y = data[ratio][i - window_size + 1:i + 1]
+                x = np.arange(len(y)) + 1
+            
+            if len(x) >= 2:
+                A = np.vstack([x, np.ones(len(x))]).T
+                slope, intercept = np.linalg.lstsq(A, y, rcond=None)[0]
+                
+                data.loc[data.index[i], f'{ratio}_slope'] = slope
+                data.loc[data.index[i], f'{ratio}_intercept'] = intercept
+                
+                regression = slope * (window_size if i >= window_size - 1 else i + 1) + intercept
+                data.loc[data.index[i], f'{ratio}_regression'] = regression
+                data.loc[data.index[i], f'{ratio}_difference'] = data.loc[data.index[i], ratio] - regression
+        
+        data[f'{ratio}_rolling_std'] = data[f'{ratio}_difference'].rolling(window=window_size, min_periods=1).std()
+        
+        x_values = [0.975, 0.875, 0.125, 0.025, 0.002, 0.999]
+        for x in x_values:
+            data[f'{ratio}_CI_{x}'] = norm.ppf(x, loc=data[f'{ratio}_regression'], 
+                                              scale=data[f'{ratio}_rolling_std'])
     return data
 
 def create_ratio_charts(ticker, data):
@@ -221,10 +243,10 @@ def create_ratio_charts(ticker, data):
                                name=f'{ratio} Regression', line=dict(color='green', width=2)))
         
         # Confidence intervals
-        colors = ['rgba(255,170,0,0.2)', 'rgba(255,170,0,0.1)']
-        x_values = [0.975, 0.875, 0.125, 0.025]
+        x_values = [0.975, 0.875, 0.125, 0.025, 0.002, 0.999]
+        colors = ['rgba(255,170,0,0.2)', 'rgba(255,170,0,0.1)', 'rgba(255,170,0,0.05)']
         
-        for i, (upper, lower) in enumerate(zip(x_values[:2], x_values[2:])):
+        for i, (upper, lower) in enumerate(zip(x_values[:3], x_values[3:])):
             fig.add_trace(go.Scatter(x=data.index, y=data[f'{ratio}_CI_{upper}'],
                                    line=dict(color='orange', dash='dash'), 
                                    name=f'+{i+1}σ', showlegend=True))
@@ -234,7 +256,7 @@ def create_ratio_charts(ticker, data):
                                    fillcolor=colors[i], showlegend=True))
 
         fig.update_layout(
-            title=f'{ticker} {ratio} Analysis',
+            title=f'{ticker} {ratio} Statistical Analysis',
             yaxis_title=ratio,
             xaxis_title='Date',
             showlegend=True,
