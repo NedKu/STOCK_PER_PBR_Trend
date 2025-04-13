@@ -4,7 +4,7 @@ st.set_page_config(layout="wide", page_title="Stock Analysis Tool")
 st.title("📈 Interactive Stock Analysis Tool")
 stock_input = st.text_area(
     "Enter stock symbols (one per line):",
-    "2330.TW\n6285.TW",
+    "2330.TW\n6285.TW\TWII\SP\QQQ\VT\BNDW\BND\BIV\tlt\^irx\^fvx\vde\fxy",
     help="Enter stock symbols (e.g., 2330.TW, AAPL, MSFT). One symbol per line."
 )
 if st.button("Analyze Stocks"):
