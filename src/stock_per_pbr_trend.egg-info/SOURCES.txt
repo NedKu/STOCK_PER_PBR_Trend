@@ -1,0 +1,13 @@
+LICENSE
+README.md
+pyproject.toml
+src/stock_per_pbr_trend/__init__.py
+src/stock_per_pbr_trend/analysis.py
+src/stock_per_pbr_trend/app_streamlit.py
+src/stock_per_pbr_trend/charting.py
+src/stock_per_pbr_trend.egg-info/PKG-INFO
+src/stock_per_pbr_trend.egg-info/SOURCES.txt
+src/stock_per_pbr_trend.egg-info/dependency_links.txt
+src/stock_per_pbr_trend.egg-info/requires.txt
+src/stock_per_pbr_trend.egg-info/top_level.txt
+tests/test_analysis_smoke.py

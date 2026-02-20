@@ -1,3 +1,25 @@
+Metadata-Version: 2.4
+Name: stock-per-pbr-trend
+Version: 0.1.0
+Summary: Streamlit app for stock volume breakout + PER/PBR trend analysis using Yahoo Finance data
+Author: 
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: streamlit>=1.30
+Requires-Dist: yfinance>=0.2
+Requires-Dist: pandas>=2.0
+Requires-Dist: numpy>=1.24
+Requires-Dist: plotly>=5.18
+Requires-Dist: scipy>=1.10
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: ruff>=0.5; extra == "dev"
+Requires-Dist: black>=24.0; extra == "dev"
+Requires-Dist: pre-commit>=3.0; extra == "dev"
+Dynamic: license-file
+
 # Stock PER / PBR Trend (Streamlit)
 
 This project provides a Streamlit UI that:
